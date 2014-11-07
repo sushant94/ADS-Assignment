@@ -1,75 +1,95 @@
-// Only store positive values.
-// -1 is -INF.
-#define -INF -1
-class binomialTree
+#include <cstddef>
+// -1 is INF_
+#define INF_ -1
+
+class BinomialTree
 {
-    // Each binomial tree node has 3 pointers:
+    // Each Binomial tree node has 3 pointers:
     // (Parent, Left Child, Right sibling)
-    binomialTree *parent;
-    binomialTree *left;
-    binomialTree *right;
+    BinomialTree *parent;
+    BinomialTree *left;
+    BinomialTree *right;
 
-    int32_t value;
-    int32_t index;
+    int value;
+    int index;
 
-    friend class binomialHeap;
+    friend class BinomialHeap;
 
     public:
     
-    binomialTree() {
+    BinomialTree()
+    {
         parent = NULL;
         left = NULL;
         right = NULL;
-        value = -INF;
+        value = INF_;
         index = 0;
     }
 
-    binomialTree(int32_t key) {
+    BinomialTree(int key) 
+    {
         parent = NULL;
         left = NULL;
         right = NULL;
         value = key;
         index = 0;
     }
+
+    int getValue() 
+    {
+        return value;
+    }
+
+    void findNode(int key, BinomialTree **node);
+    void maintainHeap();
+    void traverse();
 };
 
-// binomialHeap is basically a linked list with heads of binomial trees.
-class binomialHeap
+// BinomialHeap is basically a linked list with heads of Binomial trees.
+class BinomialHeap
 {
-    // Head points to the smallest binomial tree part of this binomial heap.
-    // For the roots, we have height of root = index of the binomial tree in the heap.
-    binomialTree *head;
+    // Head points to the smallest Binomial tree part of this Binomial heap.
+    // For the roots, we have height of root = index of the Binomial tree in the heap.
+    BinomialTree *head;
 
-    // Members is a bit-string to store the members of binomial heap.
-    // i.e. Which binary trees are a part of this binomial heap.
-    int32_t members;
+    // Members is a bit-string to store the members of Binomial heap.
+    // i.e. Which binary trees are a part of this Binomial heap.
+    int members;
 
     public:
 
-    binomialHeap() {
+    BinomialHeap() {
         members = 0;
         head = NULL;
     }
 
-    int32_t power2(int32_t i) {
+    BinomialHeap(BinomialTree *t) {
+        head = t;
+        // Need to fix this.
+        members = 0;
+    }
+
+    int power2(int i) {
         return (1 << i);
     }
 
     // Returns if the heap has a tree with index 'i'.
-    bool hasIndexi(int32_t i) {
+    bool hasIndexi(int i) {
         return (members & power2(i));
     }
 
-    // Union 2 binomial heaps.
-    void union(binomialHeap *other);
+    // Union 2 Binomial heaps.
+    void unionHeap(BinomialHeap *other);
 
-    int32_t extractMin();
-    int32_t decreaseKey();
+    int extractMin();
+    void decreaseKey(int key, int newKey);
 
-    void insertKey(int32_t key);
-    void deleteKey(int32_t key);
+    void insertKey(int key);
+    void deleteKey(int key);
 
-    // Finds a key in a binomial heap.
+    // Finds a key in a Binomial heap.
     // Node is returned in the node argument. Must be set to null before passing into the function.
-    void findKey(int32_t key, binomialTree *node);
+    void findKey(int key, BinomialTree **node);
+
+    void traverse();
 };
