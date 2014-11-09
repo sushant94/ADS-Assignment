@@ -95,4 +95,5 @@ class BinomialHeap
     void findKey(int key, BinomialTree **node);
 
     void traverse();
+    void reverse();
 };

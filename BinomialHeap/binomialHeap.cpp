@@ -70,6 +70,7 @@ BinomialTree::traverse()
         std::cout<<"r";
     else
         std::cout<<"("<<parent->value<<")";
+    std::cout<<"<"<<index<<">";
     std::cout<<"]";
     // Left child.
     if (left)
@@ -109,13 +110,20 @@ BinomialHeap::unionHeap(BinomialHeap *other)
             nextj = j->right;
             i->mergeTrees(j);
             j = nextj;
+
             while (nexti && (i->index == nexti->index)) {
                 nnexti = nexti->right;
                 i->mergeTrees(nexti);
                 if (i->parent)
                     i = i->parent;
+                if (head->parent)
+                    head = head->parent;
                 nexti = nnexti;
             } 
+            if (i->parent)
+                i = i->parent;
+            if (head->parent)
+                head = head->parent;
             i->right = nexti;
         } else {
             // j->index can never be < i->index.
@@ -148,56 +156,54 @@ BinomialHeap::extractMin()
     // Find  minimum among the roots.
     // Delete.
     // Union the two broken up heaps.
+    if (!head)
+        return -1;
+
     int min = head->value;
-    BinomialTree *t = head;
-    BinomialTree *d = NULL;
+    BinomialTree *d = head;
+    BinomialTree *tmp = head;
+    bool flag = true;
 
-    while (t->right) {
-        if (t->right->value < min)
-            min = t->right->value, d = t;
-        t = t->right;
-    }
-
-    // We now have the pointer to the node in root list which is a 
-    // sibling of the node we want to delete.
-    // i.e. d->right = Node we need to extract/min node.
-    BinomialTree *piece = d->right->left;
-    d->right = d->right->right;
-
-    d = piece->parent;
-    d->left = NULL;
-    d->right = NULL;
-    delete d;
-
-    BinomialTree *tmp = piece;
-    int i = 1;
-    while (tmp) {
-        tmp->parent = NULL;
-        tmp->index = tmp->index - i;
-        i++;
+    while (tmp->right) {
+        if (tmp->right->value < min)
+            min = tmp->right->value, d = tmp, flag = false;
         tmp = tmp->right;
     }
+    // d->right gives us the node to be deleted.
+    // Note. d->left will have the heap in reverse order. We will have to reverse it before calling merge on it.
+    BinomialTree *piece;
+    if (flag) {
+        head = d->left;
+        piece = d->right;
+        
+        if (d->right)
+            head = d->right, piece = d->left;
 
-    tmp = piece->right;
-    BinomialTree *tmp1 = tmp->right;
-    piece->right = NULL;
+        d->right = NULL;
+        d->left = NULL;
+        delete d;
+        
+        if (piece) {
+            BinomialHeap h(piece);
+            h.reverse();
+            unionHeap(&h);
+        } else {
+            if (head)
+                reverse();
+        }
 
-    while (tmp1) {
-        tmp->right = piece;
-        piece = tmp;
-        tmp = tmp1;
-        tmp1 = tmp1->right;
+    } else {
+        piece = d->right->left;
+        d->right = d->right->right;
+        d = piece->parent;
+        d->left = NULL;
+        d->right = NULL;
+        delete d;
+
+        BinomialHeap h(piece);
+        h.reverse();
+        unionHeap(&h);
     }
-
-    tmp->right = piece;
-    piece = tmp;
-
-    BinomialHeap *other;
-    other = new BinomialHeap(piece);
-
-    unionHeap(other);
-
-    delete other;
 
     return min;
 }
@@ -252,5 +258,38 @@ BinomialHeap::findKey(int key, BinomialTree **node)
 void
 BinomialHeap::traverse()
 {
-    head->traverse();
+    if (head)
+        head->traverse();
+    else
+        std::cout<<"\nNULL\n";
+}
+
+void
+BinomialHeap::reverse()
+{
+    BinomialTree *tmp2 = NULL;
+    BinomialTree *tmp = head;
+    BinomialTree *tmp1 = head->right;
+    if (tmp1)
+        tmp2 = tmp1->right;
+    else {
+        tmp->parent = NULL;
+        tmp->index--;
+        return;
+    }
+    tmp->right = NULL;
+    while (tmp2) {
+        tmp->parent = NULL;
+        tmp->index--;
+        tmp1->right = tmp;
+        tmp = tmp1;
+        tmp1 = tmp2;
+        tmp2 = tmp2->right;
+    }
+    tmp1->right = tmp;
+    tmp->parent = NULL;
+    tmp->index--;
+    tmp1->parent = NULL;
+    tmp1->index--;
+    head = tmp1;
 }
