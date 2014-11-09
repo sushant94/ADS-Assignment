@@ -34,6 +34,33 @@ BinomialTree::maintainHeap()
     }
 }
 
+// Merge 2 BinomialTrees.
+// Warning. The binomialTrees should have right = NULL,
+// Else you will lose this data.
+void
+BinomialTree::mergeTrees(BinomialTree *other)
+{
+    if (index != other->index)
+        return;
+
+    BinomialTree *smaller = this;
+    BinomialTree *bigger = other;
+
+    if (smaller->value > bigger->value) {
+        BinomialTree *tmp = smaller;
+        smaller = bigger;
+        bigger = tmp;
+    }
+
+    bigger->parent = smaller;
+    smaller->right = NULL;
+    bigger->right = NULL;
+    bigger->right = smaller->left;
+    smaller->left = bigger;
+    smaller->index++;
+    bigger->index++;
+}
+
 void
 BinomialTree::traverse()
 {
@@ -55,50 +82,64 @@ BinomialTree::traverse()
 void
 BinomialHeap::unionHeap(BinomialHeap *other)
 {
-    // Base case. Insertion of first node.
+    // i is used to iterate over this->head.
+    BinomialTree *i = head;
+    // j is used to iterate over other->head.
+    BinomialTree *j = other->head;
+
+    BinomialTree *nnexti;
+    BinomialTree *nexti;
+    BinomialTree *nextj;
+
     if (head == NULL) {
-        head = other->head;
+        head = j;
         return;
     }
 
-    BinomialTree *tmp = head;
-    BinomialTree *otherTmp = other->head;
-    std::cout<<"\n"<<"="<<head->index<<" "<<other->head->index<<"\n";
-    while (tmp && otherTmp) {
-        BinomialTree *smaller, *bigger;
-        // Do they have same Binomial tree index?
-        if (tmp->index == otherTmp->index) {
-            // Merge
-            // Two trees of index i merge to give a tree of index i+1.
-            tmp->index = otherTmp->index = tmp->index + 1;
-            if (tmp->value > otherTmp->value)
-                smaller = otherTmp, bigger = tmp;
-            else
-                smaller = tmp, bigger = otherTmp;
-
-            bigger->parent = smaller;
-            BinomialTree *next = bigger->right;
-            bigger->right = smaller->left;
-            smaller->left = bigger;
-            if (next == NULL)
-                next = smaller->right;
-            tmp = next;
-            otherTmp = smaller;
-        } else {
-            bigger = otherTmp, smaller = tmp;
-            if (tmp->index > otherTmp->index)
-                bigger = tmp, smaller = otherTmp;
-
-            BinomialTree *next = smaller->right;
-            smaller->right = bigger;
-            tmp = next;
-            otherTmp = bigger; // smaller->right
-            if (smaller->index == 0)
-                head = smaller;
-        }
+    if (i->index > j->index) {
+        BinomialTree *tmp = i;
+        i = j;
+        j = tmp;
+        head = i;
     }
 
-    // We may end up with trees of same degree after merge. We need to fix this.
+    while (i && j) {
+        if (i->index == j->index) {
+            nexti = i->right;
+            nextj = j->right;
+            i->mergeTrees(j);
+            j = nextj;
+            while (nexti && (i->index == nexti->index)) {
+                nnexti = nexti->right;
+                i->mergeTrees(nexti);
+                if (i->parent)
+                    i = i->parent;
+                nexti = nnexti;
+            } 
+            i->right = nexti;
+        } else {
+            // j->index can never be < i->index.
+            // i.e. j->index >= i->index.
+            if (i->right && j->index < i->right->index) {
+                BinomialTree *nexti = i->right;
+                BinomialTree *nextj = j->right;
+                i->right = j;
+                j->right = nexti;
+                i = i->right;
+                j = nextj;
+                continue;
+            }
+            else if (i->right == NULL && j) {
+                i->right = j;
+                break;
+            }
+            i = i->right;
+        }
+
+    }
+
+    while (head->parent != NULL)
+        head = head->parent;
 }
 
 int
@@ -107,7 +148,7 @@ BinomialHeap::extractMin()
     // Find  minimum among the roots.
     // Delete.
     // Union the two broken up heaps.
-    int min = INF_;
+    int min = head->value;
     BinomialTree *t = head;
     BinomialTree *d = NULL;
 
@@ -137,12 +178,28 @@ BinomialHeap::extractMin()
         tmp = tmp->right;
     }
 
+    tmp = piece->right;
+    BinomialTree *tmp1 = tmp->right;
+    piece->right = NULL;
+
+    while (tmp1) {
+        tmp->right = piece;
+        piece = tmp;
+        tmp = tmp1;
+        tmp1 = tmp1->right;
+    }
+
+    tmp->right = piece;
+    piece = tmp;
+
     BinomialHeap *other;
     other = new BinomialHeap(piece);
 
     unionHeap(other);
 
     delete other;
+
+    return min;
 }
 
 void
@@ -173,7 +230,6 @@ BinomialHeap::insertKey(int key)
     h = new BinomialHeap(t);
     // Union the two heaps.
     unionHeap(h);
-    std::cout<<"--"<<head->right<<"--";
 }
 
 void

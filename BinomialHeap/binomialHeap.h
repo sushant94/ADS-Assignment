@@ -6,6 +6,7 @@ class BinomialTree
 {
     // Each Binomial tree node has 3 pointers:
     // (Parent, Left Child, Right sibling)
+    public:
     BinomialTree *parent;
     BinomialTree *left;
     BinomialTree *right;
@@ -15,7 +16,7 @@ class BinomialTree
 
     friend class BinomialHeap;
 
-    public:
+
     
     BinomialTree()
     {
@@ -43,6 +44,7 @@ class BinomialTree
     void findNode(int key, BinomialTree **node);
     void maintainHeap();
     void traverse();
+    void mergeTrees(BinomialTree *other);
 };
 
 // BinomialHeap is basically a linked list with heads of Binomial trees.
@@ -50,7 +52,7 @@ class BinomialHeap
 {
     // Head points to the smallest Binomial tree part of this Binomial heap.
     // For the roots, we have height of root = index of the Binomial tree in the heap.
-    BinomialTree *head;
+
 
     // Members is a bit-string to store the members of Binomial heap.
     // i.e. Which binary trees are a part of this Binomial heap.
@@ -58,6 +60,7 @@ class BinomialHeap
 
     public:
 
+    BinomialTree *head;
     BinomialHeap() {
         members = 0;
         head = NULL;
