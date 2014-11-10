@@ -18,6 +18,7 @@ BinomialTree::findNode(int key, BinomialTree **node)
         this->right->findNode(key, node);
 }
 
+/*
 void
 BinomialTree::maintainHeap()
 {
@@ -33,6 +34,7 @@ BinomialTree::maintainHeap()
         parent->maintainHeap();
     }
 }
+*/
 
 // Merge 2 BinomialTrees.
 // Warning. The binomialTrees should have right = NULL,
@@ -65,11 +67,11 @@ void
 BinomialTree::traverse()
 {
     std::cout<<"\n";
-    std::cout<<"["<<value;
+    std::cout<<"["<<value.value;
     if (parent == NULL)
         std::cout<<"r";
     else
-        std::cout<<"("<<parent->value<<")";
+        std::cout<<"("<<parent->value.value<<")";
     std::cout<<"<"<<index<<">";
     std::cout<<"]";
     // Left child.
@@ -159,14 +161,14 @@ BinomialHeap::extractMin()
     if (!head)
         return -1;
 
-    int min = head->value;
+    int min = head->value.value;
     BinomialTree *d = head;
     BinomialTree *tmp = head;
     bool flag = true;
 
     while (tmp->right) {
         if (tmp->right->value < min)
-            min = tmp->right->value, d = tmp, flag = false;
+            min = tmp->right->value.value, d = tmp, flag = false;
         tmp = tmp->right;
     }
     // d->right gives us the node to be deleted.
@@ -208,6 +210,7 @@ BinomialHeap::extractMin()
     return min;
 }
 
+/*
 void
 BinomialHeap::decreaseKey(int key, int newKey)
 {
@@ -225,6 +228,7 @@ BinomialHeap::decreaseKey(int key, int newKey)
     node->value = newKey;
     node->maintainHeap();
 }
+*/
 
 void
 BinomialHeap::insertKey(int key)
@@ -237,7 +241,7 @@ BinomialHeap::insertKey(int key)
     // Union the two heaps.
     unionHeap(h);
 }
-
+/*
 void
 BinomialHeap::deleteKey(int key)
 {
@@ -246,7 +250,7 @@ BinomialHeap::deleteKey(int key)
     // Delete Min.
     extractMin();
 }
-
+*/
 void
 BinomialHeap::findKey(int key, BinomialTree **node)
 {

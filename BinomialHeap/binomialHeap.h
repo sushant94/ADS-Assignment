@@ -2,6 +2,58 @@
 // -1 is INF_
 #define INF_ -1
 
+class Node
+{
+    public:
+        int value;
+        Node *parent;
+
+        Node()
+        {
+            value = 0;
+            parent = NULL;
+        }
+
+        // Overload of all needed operators.
+        // Compatible to make it templates later.
+        bool operator>(const Node &other)
+        {
+            return value > other.value;
+        }
+
+        void operator=(const int &other)
+        {
+            value = other;
+        }
+
+        void operator=(const Node &other)
+        {
+            value = other.value;
+            parent = other.parent;
+        }
+
+        bool operator==(const Node &other)
+        {
+            return value == other.value;
+        }
+
+        bool operator==(const int &other)
+        {
+            return value == other;
+        }
+
+        bool operator>(const int &other)
+        {
+            return value > other;
+        }
+
+        bool operator<(const int &other)
+        {
+            return value < other;
+        }
+
+};
+
 class BinomialTree
 {
     // Each Binomial tree node has 3 pointers:
@@ -11,7 +63,7 @@ class BinomialTree
     BinomialTree *left;
     BinomialTree *right;
 
-    int value;
+    Node value;
     int index;
 
     friend class BinomialHeap;
@@ -34,11 +86,6 @@ class BinomialTree
         right = NULL;
         value = key;
         index = 0;
-    }
-
-    int getValue() 
-    {
-        return value;
     }
 
     void findNode(int key, BinomialTree **node);
