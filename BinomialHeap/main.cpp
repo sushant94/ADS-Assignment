@@ -35,14 +35,15 @@ int main()
     Q->findKey(start, &t);
     if (t)
         t->decreaseKey(0);
-    while(Q->head) {
+    while(Q->isEmpty()) {
         int index = Q->extractMin();
         // We have the extracted index.
         for (int i = 1; i <= n; i++) {
+            if (index == i)
+                continue;
             Q->findKey(i, &t);
-            if (t && weights[index][i] < t->val.value) {
+            if (t && weights[index][i] != 0 && weights[index][i] < t->val.value) {
                 t->decreaseKey(weights[index][i]);
-                t->val.parent = index;
                 parents[t->val.n] = index;
             }
         }

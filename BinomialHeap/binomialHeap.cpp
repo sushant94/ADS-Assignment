@@ -6,7 +6,6 @@ BinomialTree::findNode(int n, BinomialTree **node)
 {
     if (val.n == n)
         *node = (this);
-
     /* 
      * If val.n > n, don't check children.
      * If no child, can't search.
@@ -24,7 +23,6 @@ BinomialTree::maintainHeap()
     // Base case - we're at root.
     if (parent == NULL)
         return;
-
     // As long as we can bubble up, we do so.
     if (parent->val.value > val.value) {
         Node tmp = val;
@@ -34,9 +32,7 @@ BinomialTree::maintainHeap()
     }
 }
 
-// Merge 2 BinomialTrees.
-// Warning. The binomialTrees should have right = NULL,
-// Else you will lose this data.
+// Merge 2 Binomial Trees.
 void
 BinomialTree::mergeTrees(BinomialTree *other)
 {
@@ -91,14 +87,10 @@ BinomialTree::decreaseKey(int key)
     maintainHeap();
 }
 
-    
-
 void
 BinomialHeap::unionHeap(BinomialHeap *other)
 {
-    // i is used to iterate over this->head.
     BinomialTree *i = head;
-    // j is used to iterate over other->head.
     BinomialTree *j = other->head;
 
     BinomialTree *nnexti;
@@ -110,6 +102,8 @@ BinomialHeap::unionHeap(BinomialHeap *other)
         return;
     }
 
+    // We always have to maintain this condition:
+    // i->index < j->index.
     if (i->index > j->index) {
         BinomialTree *tmp = i;
         i = j;
@@ -124,13 +118,17 @@ BinomialHeap::unionHeap(BinomialHeap *other)
             i->mergeTrees(j);
             j = nextj;
 
+            // Merging 2 Binomial trees will cause a carry.
+            // Loop to merge the new tree with existing tree of same index if it exists.
             while (nexti && (i->index == nexti->index)) {
                 nnexti = nexti->right;
                 i->mergeTrees(nexti);
+                
                 if (i->parent)
                     i = i->parent;
                 if (head->parent)
                     head = head->parent;
+
                 nexti = nnexti;
             } 
             if (i->parent)
@@ -140,7 +138,6 @@ BinomialHeap::unionHeap(BinomialHeap *other)
             i->right = nexti;
         } else {
             // j->index can never be < i->index.
-            // i.e. j->index >= i->index.
             if (i->right && j->index < i->right->index) {
                 BinomialTree *nexti = i->right;
                 BinomialTree *nextj = j->right;
@@ -149,14 +146,12 @@ BinomialHeap::unionHeap(BinomialHeap *other)
                 i = i->right;
                 j = nextj;
                 continue;
-            }
-            else if (i->right == NULL && j) {
+            } else if (i->right == NULL && j) {
                 i->right = j;
                 break;
             }
             i = i->right;
         }
-
     }
 
     while (head->parent != NULL)
@@ -166,9 +161,10 @@ BinomialHeap::unionHeap(BinomialHeap *other)
 int
 BinomialHeap::extractMin()
 {
-    // Find  minimum among the roots.
-    // Delete.
-    // Union the two broken up heaps.
+    // STEPS:
+    //  - Find  minimum among the roots.
+    //  - Delete.
+    //  - Union the two broken up heaps.
     if (!head)
         return -1;
 
@@ -206,7 +202,6 @@ BinomialHeap::extractMin()
             if (head)
                 reverse();
         }
-
     } else {
         piece = d->right->left;
         d->right = d->right->right;
@@ -310,3 +305,4 @@ BinomialHeap::reverse()
     tmp1->index--;
     head = tmp1;
 }
+

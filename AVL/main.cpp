@@ -7,7 +7,9 @@ int main()
     AVLTree *t;
     t = new AVLTree;
     while(ch) {
-        cout<<"\n1. Insert Node.\n2. Find Node\n3. Delete Node\n4. Inorder traversal\n";
+        cout<<"\nAVL TREES:\n";
+        cout<<"1.Insert Node\n2.Find Node\n3.Delete Node\n4.Inorder traversal\n";
+        cout<<"Choice: ";
         cin>>ch;
         switch(ch) {
           case 1:

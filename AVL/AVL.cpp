@@ -31,7 +31,6 @@ Node::insertN(int key)
             maintain();
             return;
         }
-        std::cout<<"Inserting right child: "<<value<<"\n";
         child = new Node;
         child->value = key;
         rightChild = child;
@@ -45,7 +44,6 @@ Node::insertN(int key)
             maintain();
             return;
         }
-        std::cout<<"Inserting left child: "<<value<<"\n";
         child = new Node;
         child->value = key;
         leftChild = child;
@@ -227,12 +225,21 @@ AVLTree::insertN(int key)
 void 
 AVLTree::deleteN(int key)
 {
-    head->deleteN(key);
+    if (head && !head->leftChild && !head->rightChild && head->value == key) {
+        delete(head);
+        head = NULL;
+    } else if (head) {
+        head->deleteN(key);
+    }
 }
 
 void
 AVLTree::walkTree()
 {
-    head->walkSubTree();
+    std::cout<<"Traversal: ";
+    if (head)
+        head->walkSubTree();
+    else
+        std::cout<<"\nNULL\n";
 }
 
