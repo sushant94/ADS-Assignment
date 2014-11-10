@@ -1,4 +1,5 @@
 #include "AVL.h"
+#include <iostream>
 
 Node *
 Node::findN(int key)
@@ -26,24 +27,31 @@ Node::insertN(int key)
     if (key > value) {
         if (rightChild) {
             rightChild->insertN(key);
+            height++;
             maintain();
             return;
         }
-
+        std::cout<<"Inserting right child: "<<value<<"\n";
         child = new Node;
         child->value = key;
         rightChild = child;
         child->parent = this;
+        height++;
+        maintain();
     } else {
         if (leftChild) {
             leftChild->insertN(key);
+            height++;
             maintain();
             return;
         }
+        std::cout<<"Inserting left child: "<<value<<"\n";
         child = new Node;
         child->value = key;
         leftChild = child;
         child->parent = this;
+        height++;
+        maintain();
     }
 }
 
@@ -73,7 +81,7 @@ Node::deleteN(int key)
         } else {
 
             if (!parent) {
-                std::cout<<"Cannot delete root without any other node.\n";
+                //std::cout<<"Cannot delete root without any other node.\n";
                 return;
             }
             
@@ -97,6 +105,8 @@ Node::walkSubTree()
         leftChild->walkSubTree();
     
     std::cout<<value;
+    if (parent)
+        std::cout<<"<"<<parent->value<<"> ";
     if (parent == NULL)
         std::cout<<"*";
 
@@ -106,6 +116,20 @@ Node::walkSubTree()
         rightChild->walkSubTree();
 }
 
+void
+Node::computeHeight()
+{
+    int rightHeight, leftHeight;
+    rightHeight = leftHeight = 0;
+
+    if (rightChild)
+        rightHeight = rightChild->height+1;
+    if (leftChild)
+        leftHeight = leftChild->height+1;
+
+    height = (rightHeight > leftHeight ? rightHeight:leftHeight);
+    balanceFactor = leftHeight - rightHeight;
+}
 
 void
 Node::maintain()
@@ -114,17 +138,7 @@ Node::maintain()
     if (!rightChild && !leftChild)
         return;
 
-    int rightHeight,leftHeight;
-    rightHeight = leftHeight = 0;
-    
-    if (rightChild)
-        rightHeight = rightChild->height;
-    if (leftChild)
-        leftHeight = leftChild->height;
-
-    height = (rightHeight > leftHeight ? rightHeight:leftHeight) + 1;
-
-    balanceFactor  = leftHeight - rightHeight;
+    computeHeight();
     
     // The height of right and left subtrees can differ maximum by 1.
     if (balanceFactor > 1) {
@@ -149,9 +163,21 @@ Node::rotateRight()
 {
     Node *temp = leftChild;
     leftChild = leftChild->rightChild;
+    if (leftChild)
+        leftChild->parent = this;
     temp->rightChild = this;
-    temp->parent = NULL;
+    temp->parent = this->parent;
+
+    if (this->parent) {
+        if (this->parent->leftChild == this)
+            this->parent->leftChild = temp;
+        else
+            this->parent->rightChild = temp;
+    }
     parent = temp;
+
+    computeHeight();
+    temp->computeHeight();
 }
 
 void
@@ -159,7 +185,54 @@ Node::rotateLeft()
 {
     Node *temp = rightChild;
     rightChild = rightChild->leftChild;
+    if (rightChild)
+        rightChild->parent = this;
     temp->leftChild = this;
-    temp->parent = NULL;
+    temp->parent = this->parent;
+
+    if (this->parent) {
+        if (this->parent->leftChild == this)
+            this->parent->leftChild = temp;
+        else
+            this->parent->rightChild = temp;
+    }
     parent = temp;
+
+    computeHeight();
+    temp->computeHeight();
 }
+
+// AVLTree starts here.
+Node*
+AVLTree::findN(int key)
+{
+    return head->findN(key);
+}
+
+void
+AVLTree::insertN(int key)
+{
+    if (head == NULL) {
+        Node *n;
+        n = new Node(key);
+        head = n;
+        return;
+    }
+
+    head->insertN(key);
+    while (head->parent)
+        head = head->parent;
+}
+
+void 
+AVLTree::deleteN(int key)
+{
+    head->deleteN(key);
+}
+
+void
+AVLTree::walkTree()
+{
+    head->walkSubTree();
+}
+
