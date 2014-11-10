@@ -2,20 +2,20 @@
 #include <iostream>
 
 void 
-BinomialTree::findNode(int key, BinomialTree **node)
+BinomialTree::findNode(int n, BinomialTree **node)
 {
-    if (value == key)
+    if (val.n == n)
         *node = (this);
 
     /* 
-     * If value > key, don't check children.
+     * If val.n > n, don't check children.
      * If no child, can't search.
      * If already found, don't continue.
      */
-    if (value < key && this->left && *node == NULL)
-        this->left->findNode(key, node);
-    if (this->parent && this->right && *node == NULL)
-        this->right->findNode(key, node);
+    if (val.n < n && this->left && *node == NULL)
+        this->left->findNode(n, node);
+    if (this->right && *node == NULL)
+        this->right->findNode(n, node);
 }
 
 void
@@ -26,10 +26,10 @@ BinomialTree::maintainHeap()
         return;
 
     // As long as we can bubble up, we do so.
-    if (parent->value > value) {
-        int tmp = value;
-        value = parent->value;
-        parent->value = tmp;
+    if (parent->val.value > val.value) {
+        Node tmp = val;
+        val = parent->val;
+        parent->val = tmp;
         parent->maintainHeap();
     }
 }
@@ -46,7 +46,7 @@ BinomialTree::mergeTrees(BinomialTree *other)
     BinomialTree *smaller = this;
     BinomialTree *bigger = other;
 
-    if (smaller->value > bigger->value) {
+    if (smaller->val.value > bigger->val.value) {
         BinomialTree *tmp = smaller;
         smaller = bigger;
         bigger = tmp;
@@ -65,11 +65,11 @@ void
 BinomialTree::traverse()
 {
     std::cout<<"\n";
-    std::cout<<"["<<value;
+    std::cout<<"["<<val.value;
     if (parent == NULL)
         std::cout<<"r";
     else
-        std::cout<<"("<<parent->value<<")";
+        std::cout<<"("<<parent->val.value<<")";
     std::cout<<"<"<<index<<">";
     std::cout<<"]";
     // Left child.
@@ -79,6 +79,19 @@ BinomialTree::traverse()
     if (right)
         right->traverse();
 }
+
+void
+BinomialTree::decreaseKey(int key)
+{
+    if (key > this->val.value)
+        return;
+
+    val.value = key;
+
+    maintainHeap();
+}
+
+    
 
 void
 BinomialHeap::unionHeap(BinomialHeap *other)
@@ -159,14 +172,15 @@ BinomialHeap::extractMin()
     if (!head)
         return -1;
 
-    int min = head->value;
+    int min = head->val.value;
+    int ret = 0;
     BinomialTree *d = head;
     BinomialTree *tmp = head;
     bool flag = true;
 
     while (tmp->right) {
-        if (tmp->right->value < min)
-            min = tmp->right->value, d = tmp, flag = false;
+        if (tmp->right->val.value < min)
+            min = tmp->right->val.value, d = tmp, flag = false;
         tmp = tmp->right;
     }
     // d->right gives us the node to be deleted.
@@ -181,6 +195,7 @@ BinomialHeap::extractMin()
 
         d->right = NULL;
         d->left = NULL;
+        ret = d->val.n;
         delete d;
         
         if (piece) {
@@ -198,6 +213,7 @@ BinomialHeap::extractMin()
         d = piece->parent;
         d->left = NULL;
         d->right = NULL;
+        ret = d->val.n;
         delete d;
 
         BinomialHeap h(piece);
@@ -205,33 +221,33 @@ BinomialHeap::extractMin()
         unionHeap(&h);
     }
 
-    return min;
+    return ret;
 }
 
 void
-BinomialHeap::decreaseKey(int key, int newKey)
+BinomialHeap::decreaseKey(int n, int newKey)
 {
-    if (key < newKey)
-        return;
-
     // Find Node with the key.
     BinomialTree *node;
-    findKey(key, &node);
+    findKey(n, &node);
+
+    if (node->val.value < newKey)
+        return;
 
     if (node == NULL)
         return;
 
     // Decrease and bubble up.
-    node->value = newKey;
+    node->val.value = newKey;
     node->maintainHeap();
 }
 
 void
-BinomialHeap::insertKey(int key)
+BinomialHeap::insertKey(int key, int n)
 {
     // Make heap with key.
     BinomialTree *t;
-    t = new BinomialTree(key);
+    t = new BinomialTree(key, n);
     BinomialHeap *h;
     h = new BinomialHeap(t);
     // Union the two heaps.
@@ -248,11 +264,12 @@ BinomialHeap::deleteKey(int key)
 }
 
 void
-BinomialHeap::findKey(int key, BinomialTree **node)
+BinomialHeap::findKey(int n, BinomialTree **node)
 {
     // Find key in the heap.
     *node = NULL;
-    head->findNode(key, node);
+    if (head)
+        head->findNode(n, node);
 }
 
 void

@@ -2,6 +2,28 @@
 // -1 is INF_
 #define INF_ -1
 
+class Node
+{
+    public:
+        int value;
+        int parent;
+        int n;
+
+        Node()
+        {
+            value = 1000;
+            parent = -1;
+            n = -1;
+        }
+
+        Node(int n)
+        {
+            value = 1000;
+            parent = -1;
+            this->n = n;
+        }
+};
+
 class BinomialTree
 {
     // Each Binomial tree node has 3 pointers:
@@ -10,6 +32,8 @@ class BinomialTree
     BinomialTree *parent;
     BinomialTree *left;
     BinomialTree *right;
+
+    Node val;
 
     int value;
     int index;
@@ -23,7 +47,6 @@ class BinomialTree
         parent = NULL;
         left = NULL;
         right = NULL;
-        value = INF_;
         index = 0;
     }
 
@@ -32,19 +55,25 @@ class BinomialTree
         parent = NULL;
         left = NULL;
         right = NULL;
-        value = key;
+        val.value = key;
         index = 0;
     }
 
-    int getValue() 
+    BinomialTree(int key, int n)
     {
-        return value;
+        parent = NULL;
+        left = NULL;
+        right = NULL;
+        val.value = key;
+        val.n = n;
+        index = 0;
     }
 
-    void findNode(int key, BinomialTree **node);
+    void findNode(int n, BinomialTree **node);
     void maintainHeap();
     void traverse();
     void mergeTrees(BinomialTree *other);
+    void decreaseKey(int key);
 };
 
 // BinomialHeap is basically a linked list with heads of Binomial trees.
@@ -85,14 +114,14 @@ class BinomialHeap
     void unionHeap(BinomialHeap *other);
 
     int extractMin();
-    void decreaseKey(int key, int newKey);
+    void decreaseKey(int n, int newKey);
 
-    void insertKey(int key);
+    void insertKey(int key, int n);
     void deleteKey(int key);
 
     // Finds a key in a Binomial heap.
     // Node is returned in the node argument. Must be set to null before passing into the function.
-    void findKey(int key, BinomialTree **node);
+    void findKey(int n, BinomialTree **node);
 
     void traverse();
     void reverse();
